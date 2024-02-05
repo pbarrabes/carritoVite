@@ -1,29 +1,61 @@
-import BarraBusqueda from "../BarraBusqueda/BarraBusqueda";
-import { useState } from "react";
 
-export default function ArticulosDisponibles({ articulosDisponibles, setArticulosCesta, setArticulosDisponibles }) {   
+import { useState } from "react";
+import { URL_SERVER } from "../../constantes";
+
+export default function ArticulosDisponibles({ articulosDisponibles,setArticulosDisponibles, setArticulosCesta }) {   
 
    const agregarArticulo = (articulo) => {
-        setArticulosCesta((previusState)=>[...previusState, articulo]);
-        setArticulosDisponibles(articulosDisponibles.map(art => art.codigo === articulo.codigo ? {...art, unidades: art.unidades - 1} : art));
+       fetch(URL_SERVER+"articulos/"+articulo.id)
+       .then((response)=>response.json())
+       .then((data)=>{
+              if(data.unidades>0){
+                setArticulosCesta((articulosCesta) => {
+                    const articuloEnCesta = articulosCesta.find((art) => art.id === articulo.id)
+                    if (articuloEnCesta) {
+                        return articulosCesta.map((art) => {
+                            if (art.id === articulo.id) {
+                                return { ...art, unidades: art.unidades + 1 }
+                            }
+                            return art
+                        })
+                    }
+                    return [...articulosCesta, { ...articulo, unidades: 1 }]
+                })
+                fetch(URL_SERVER+"articulos/"+articulo.id, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ unidades: data.unidades - 1 })
+                })
+                .then(response=>{
+                    if(response.ok){
+                        fetch(URL_SERVER+"articulos?&_sort=nombre&_order=asc")
+                        .then(response => response.json())
+                        .then(data => setArticulosDisponibles(data))
+                        .catch(error => console.error('Error:', error))
+                    }
+                })
+              }else{
+                  alert("No hay unidades suficinete disponibles")
+              }
+            })
     }   
-    const [filter,setFilter]=useState('')
+   
     return (
         <div>
             <h2>Artículos Disponibles</h2>
-            <BarraBusqueda filter={filter} setFilter={setFilter}/>
             <table>
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>Precio</th>
-                        <th>Unidades</th>
-                        <th>Acción</th>
+                        <th>Stock</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {articulosDisponibles.filter(articulo=>articulo.nombre.toLowerCase().includes(filter.toLowerCase())).map(articulo => (
-                        <tr key={articulo.codigo}>
+                    {articulosDisponibles.map(articulo => (
+                        <tr key={articulo.id}>
                             <td>{articulo.nombre}</td>
                             <td>{articulo.precio}</td>
                             <td>{articulo.unidades}</td>

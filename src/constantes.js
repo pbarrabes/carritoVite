@@ -1,0 +1,1 @@
+export const URL_SERVER = 'http://174.129.7.160:3000/';
