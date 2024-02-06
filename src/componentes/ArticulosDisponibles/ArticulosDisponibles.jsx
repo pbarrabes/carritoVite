@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { URL_SERVER } from "../../constantes";
 
-export default function ArticulosDisponibles({ articulosDisponibles,setArticulosDisponibles, setArticulosCesta }) {   
+export default function ArticulosDisponibles({ articulosDisponibles,setPedirArticulosDisponibles, setArticulosCesta }) {   
 
    const agregarArticulo = (articulo) => {
        fetch(URL_SERVER+"articulos/"+articulo.id)
@@ -30,10 +30,7 @@ export default function ArticulosDisponibles({ articulosDisponibles,setArticulos
                 })
                 .then(response=>{
                     if(response.ok){
-                        fetch(URL_SERVER+"articulos?&_sort=nombre&_order=asc")
-                        .then(response => response.json())
-                        .then(data => setArticulosDisponibles(data))
-                        .catch(error => console.error('Error:', error))
+                        setPedirArticulosDisponibles(true)
                     }
                 })
               }else{

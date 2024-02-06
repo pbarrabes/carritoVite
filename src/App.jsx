@@ -33,16 +33,18 @@ function App() {
 
   const [articulosDisponibles, setArticulosDisponibles] = useState([]);
   const [articulosCesta, setArticulosCesta] = useState([]);
-  const [filter,setFilter]=useState('')
+  const [filter,setFilter]=useState('');
+  const [pedirArticulosDisponibles,setPedirArticulosDisponibles]=useState(true);
   useEffect(()=>{
-    fetch(URL_SERVER+"articulos?nombre_like="+filter+"&unidades_gt=0&_sort=nombre&_order=asc")
-    .then(response => response.json())
-    .then(data => setArticulosDisponibles(data))
-    .catch(error => console.error('Error:', error))
+      fetch(URL_SERVER+"articulos?nombre_like="+filter+"&unidades_gt=0&_sort=nombre&_order=asc")
+      .then(response => response.json())
+      .then(data => setArticulosDisponibles(data))
+      .catch(error => console.error('Error:', error))
+      setPedirArticulosDisponibles(false);
     return () => { 
       //Aqui iria la funcion de limpieza del efecto
     }
-  },[articulosCesta,filter])
+  },[articulosCesta,filter,pedirArticulosDisponibles])
   return (
     <>
         <Cesta articulosCesta={articulosCesta} setArticulosCesta={setArticulosCesta}/>
@@ -50,7 +52,7 @@ function App() {
         <ArticulosDisponibles 
           articulosDisponibles={articulosDisponibles} 
           setArticulosCesta={setArticulosCesta} 
-          setArticulosDisponibles={setArticulosDisponibles}/>
+          setPedirArticulosDisponibles={setPedirArticulosDisponibles}/>
     </>
   )
 }
